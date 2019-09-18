@@ -1,0 +1,54 @@
+========================================
+CS/COE 1501 Assignment Information Sheet
+----------------------------------------
+
+You must submit an information sheet with every assignment.  Also be sure
+to submit all materials following the procedures described on the
+submission procedures page.
+
+Name:  Navdeep Handa
+
+Lecture section:  MW 3-4:15
+
+Recitation day and time:  F 2-2:50
+
+Assignment #:  3
+
+Program due date: 3/21/19  
+
+Handed in date:  3/21/19
+
+Source code file name(s):
+Car.java
+CarOrganizer.java
+CarTracker.java
+IndexMinPQ.java
+
+
+
+Other file name(s) (if relevant):
+cars.txt
+cars2.txt
+
+
+
+
+
+Does your program run without error?: Y
+
+If not, what is/are the error(s) and which parts of your program run
+correctly?:
+
+
+
+
+
+
+
+Additional comments to the grader:
+
+*The solution may not be pretty, but to my knowledge, it meets all the stated requirements!
+*You can ignore the code in the main() method of my CarOrganizer class, unless you're interested in it. It contains all the 
+code I used to test my class.
+*The PQs have a maximum capacity of 10,000, so if you try to add any more than that you'll error out the program.
+

@@ -1,0 +1,67 @@
+========================================
+CS/COE 1501 Assignment Information Sheet
+----------------------------------------
+
+You must submit an information sheet with every assignment.  Also be sure
+to submit all materials following the procedures described on the
+submission procedures page.
+
+Name: Navdeep Handa  
+
+Lecture section:  MW 3-4:15 PM
+
+Recitation day and time: F 2-2:50  
+
+Assignment #:  4
+
+Program due date: 4/4/18  
+
+Handed in date:  4/4/18
+
+Source code file name(s):
+Bag.java
+CC.java
+DijkstraSP.java
+Edge.java
+EdgeWeightedGraph.java
+IndexMinPQ.java
+NetworkAnalysis.java
+PrimMST.java
+PrimMSTCopper.java
+Queue.java
+Stack.java
+UF.java
+
+Other file name(s) (if relevant):
+network_data1.txt
+network_data2.txt
+
+
+
+
+
+
+Does your program run without error?: Yes
+
+If not, what is/are the error(s) and which parts of your program run
+correctly?:
+
+
+
+
+
+
+
+Additional comments to the grader:
+
+All of the source files were taken from the authors code, available on
+the course website and through online searches. They were slightly modified
+to fit the requirements of this project.
+
+I also used the following sources in algorithm development:
+http://www.csl.mtu.edu/cs2321/www/newLectures/30_More_Dijkstra.htm :to figure out how to use Dijkstra's algorithm on an undirected graph.
+
+
+
+
+

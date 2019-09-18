@@ -3,7 +3,7 @@ Java Solution to Project Euler Problem #150
 ======
 
 ## Intro
-The java file **euler150_scratchpad.java** contains a simple solution to the question proposed at https://projecteuler.net/problem=150. This was later optimized to MIPS assembly, which explains the procedural approach and certain design choices, such as using a 1D array to represent the triangles rather than a 2D array.
+The Java file **euler150.java** contains a simple solution to the question proposed at https://projecteuler.net/problem=150. This was later optimized to MIPS assembly, which explains the procedural approach and certain design choices, such as using a 1D array to represent the triangles rather than a 2D array.
 
 ## Approach
 The general approach I took for the solution was an optimized brute-force algorithm.
@@ -20,7 +20,7 @@ The general approach I took for the solution was an optimized brute-force algori
 * Java JDK: https://www.oracle.com/technetwork/java/javase/downloads/index.html
 
 #### Running the Program
-* Download the java file **euler150_scratchpad.java** from this repository.
+* Download the Java file **euler150.java** from this repository.
 * Open a shell or command prompt.
 * Compile the program from the directory this file is in: 
 ```

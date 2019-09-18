@@ -1,0 +1,2 @@
+Everything works to my knowledge. I've passed all the test cases, all spec-ed out instructions are implemented, and I don't believe my design has flaws. However, I could be wrong, so I apologize if I am.
+I did create the design with the assumption that all values in r-type instructions are signed, and unsigned values only come into play in immediate fields, so that might be a reason for potential affected functionality.

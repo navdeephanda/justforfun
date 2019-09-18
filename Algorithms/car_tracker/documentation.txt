@@ -1,0 +1,162 @@
+This document will attempt to give a compelling justification for this awful implementation of an "indexable" "priority queue".
+
+I. General Comments
+
+The general approach that I took to this project was to meet the runtime constraints and minimize engineering effort. In general,
+this meant that I chose to prefer to use code that was already written (i.e. the author's implementation of an indexable priority
+queue, IndexMinPQ.java, which I pretty much directly copied from the website). This also meant that I used way more space than 
+necessary to store information than was necessary to reduce engineering effort.
+
+II. Class Architecture
+
+    A. Description and Discussion of Tradeoffs
+    
+    Basically, I used the author's PQ as is and built my code around it, which explains the wild use of various data structures and why my data
+    structure doesn't automatically resize to accommodate more cars and instead caps out at 10000. It was never stated that having a cap of 10000
+    cars in the database is invalid behavior, so I'm considering that part of my API as a data structure because it saved me engineering effort.
+    The user just has to know not to use more than 10000 cars. This is an unlikely scenario anyway.
+
+    My controlling class is CarOrganizer. All APIs that my driver uses originate from this class.
+    This has two PQs, one for minimum price and one for minimum mileage (of all cars.) Again, if I put more
+    effort into creating a PQ that can sort by multiple priorities, I could cut down on the space, but I decided engineering effort was the more
+    valuable resource. (This is a common theme.) This also has 2 hashmaps (one for price and one for mileage) that store PQs. I concatenate the make and the model (with a separator character,
+    so I know that two makes and models won't concatenate to the same string), using that as the key in the hashmap, and look up a PQ that contains cars of
+    that make and model. Pulling a min from one of these PQs should give you the min attribute (price or mileage) for that make and model.
+    This provides the fastest possible lookup time at the price of space, but I think that tradeoff is way worth it. (Engineering effort
+    was also low). I have a VIN-to-integer hashmap that looks up the unique ID for each PQ that I'll be adding/updating/deleting cars in.
+    I suppose I could have built this hashmap into the PQ itself, but that was significant engineering effort at low payoff to me since it didn't change runtime a whole lot, only space.
+    To solve problems with deleting in the middle created by this extra layer of indirection, I also have an ArrayDeque that stores indexes that are free after deletion from the PQs so that you aren't expanding PQs arbitarily when you don't
+    need to. When deciding what to hash a VIN to, these indices are preferred to just using N because it fills holes in the PQs.
+    
+    B. Memory
+
+    The memory used for each component of the program (as a function of N, the total amount of cars in the CarOrganizer), is:
+    
+    The car objects referenced by all the PQs: strictly 2N since I stored one Car object for the price PQs and the mileage PQs.
+    The priority queues for car with minimum price/mileage of the set of all cars: logically, 2N since I stored a separate PQ for the 
+    mileage and the price. It's important to note that practically, the usage is 10001*3*2=60006, since that's what the arrays 
+    representing the PQs are initialized to in the code (IndexMinPQ.java).
+    The hashmaps that held the priority queues for Make and Model in the set of all cars: for each hashmap, a function of the diversity of the dataset
+    in terms of Make and Model. Said another way, if we let D = the number of different make and model combinations, where max(D) = N,
+    the maximum size to store these 2 hashmaps is 2N. (The hashmap is a resizable data structure, so asymptotically, we can consider
+    its space usage to be a function of N.) However, in the expected use case, storing real-life information about cars, D will never be N
+    for large N: there are only so many car brands and models. Thus, I claim that the hashmap space usage is unimportant to consider for large N.
+    The priority queues (for each Make and Model in the set of all cars) in each element of the hashmap: all together, logically 2N for the two hashmaps.
+    The Make and Model serve to partition the cars into buckets, such that a car is never added to more than one PQ (per attribute). However, the
+    practical space usage is 10001*3=30003 (as justified above) for each PQ. Considering the worst case, where each car is a different make and
+    model, this is a maximum practical space utilization of 30003*2*N for the two hashmaps. Yikes, but hey, you didn't give me space constraints.
+    The hashmap used to map VINs to indices in the PQs: N because we update this only when we add a new car.
+    (The hashmap is a resizable data structure, so asymptotically, we can consider its space usage to be a function of N.)
+    The ArrayDeque used to store available indices to use for insertion into the PQs: this is bounded by N because the deque is used as a stack. Even
+    if we delete every element but the last one, we only push N-1 indices. If we delete the last element, N reduces and the deque never gets a chance to
+    grow past N.
+
+    Since N is capped at 10000 for this particular implementation of my data structure, part of the practical data usage is fixed. However, it's
+    reasonable to entertain my data structure implemented as only using the amount of space needed and resizing as necessary. (That took
+    too much time and was too hard so I didn't do it). Discussions about memory usage in terms of N make a lot more sense to entertain in
+    that situation.
+
+    Though unintended, a consequence of fixed memory usage is that no time is spent resizing the array, and so additions are strictly
+    constant time instead of just amortized constant time. I'll discuss this further when I discuss operations.
+
+    So I know this space utilization looks horrible, but the engineering cost-save was immeasurable. Space is cheap nowadays, and time is not,
+    so I stand by my decision to make this system easier to code. Also, I promise the runtimes will be worth it. ;)
+
+III. Operations
+
+    A. Description
+    
+    Fundamentally, the runtimes for all these operations depend on the runtimes in the priority queues associated with these 
+    operations. The priority queues are all indexable PQs, with the following runtimes for operations (taken from the textbook for this class):
+    insert() log N
+    change() log N
+    contains() 1
+    delete() log N
+    min() 1
+    minIndex() 1
+    delMin() log N
+    -----
+    keyOf() 1 (direct access of array)
+    update() logN (sink and swim are logN)
+
+    I maintain that a hashmap get/put is O(1) amortized. Source: https://stackoverflow.com/questions/15469795/why-hashmap-lookup-is-o1-i-e-constant-time
+    If you don't believe me, it doesn't matter, because starting from Java 8, hash collisions result in storage into trees, 
+    so it only degrades to O(logN) on a collision. (https://www.quora.com/What-is-the-Big-O-for-operations-in-a-Hashmap)
+
+    In analysis of runtime, I summarize only the important operations.
+
+    B. Runtime
+        1. Add a car
+        
+        *create 2 cars: 2*1
+        *check for available indices: 1
+        *map VIN to chosen index: 1 (hashmap put is O(1))
+        *insert into mileage PQ: log N 
+        *insert into price PQ: log N
+        *look up PQ for make and model for price: logN
+        *insert into this price PQ: logN
+        *look up PQ for make and model for mileage: logN
+        *insert into this mileage PQ: logN
+
+        Adding these together,
+        total: O(logN)
+
+        2. Update a car
+
+        Update color:
+
+        *look up index in PQ for given VIN: 1
+        *get key from index from price PQ: 1
+        *get key from index from mileage PQ: 1
+        *set colors for price and mileage: 1 + 1
+
+        total: O(1)
+
+        Update mileage or price:
+
+        *look up index in PQ for given VIN: 1
+        *get key from index from price PQ: 1
+        *get key from index from mileage PQ: 1
+        *create two new cars from this info: 1+1
+        *change key for price and mileage PQ: 2logN
+        *look up PQs for price and mileage by make and model: 1+1
+        *change key for these PQs: 2logN
+
+        total: O(logN)
+
+        3. Remove a specific car from consideration
+
+        *look up index in PQ for given VIN: 1
+        *get key from index from any PQ (I chose price): 1
+        *delete key for price and mileage PQ: 2logN
+        *look up PQs for price and mileage by make and model: 1+1
+        *change key for these PQs: 2logN
+
+        total: O(logN)
+
+        4. Retrieve the lowest price car
+
+        *look up price PQ's min key: 1
+        
+        total: O(1)
+        
+        5. Retrieve the lowest mileage car
+
+        *look up mileage PQ's min key: 1
+        
+        total: O(1)
+
+        6. Retrieve the lowest price car by make and model
+
+        *map given make and model to a PQ: 1
+        *look up this PQ's min key: 1
+        
+        total: O(1)
+         
+        7. Retrieve the lowest mileage car by make and model
+
+        *map given make and model to a PQ: 1
+        *look up this PQ's min key: 1
+        
+        total: O(1)
+
